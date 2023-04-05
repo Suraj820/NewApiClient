@@ -8,6 +8,5 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        /* api key    204b409bd3f74b2a902fd73cb750a49b  */
     }
 }
