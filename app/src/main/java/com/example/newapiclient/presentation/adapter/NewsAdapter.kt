@@ -1,5 +1,6 @@
 package com.example.newapiclient.presentation.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
@@ -48,7 +49,18 @@ class NewsAdapter:RecyclerView.Adapter<NewsAdapter.NewsViewHolder>() {
             Glide.with(binding.ivArticleImage.context)
                 .load(article.urlToImage)
                 .into(binding.ivArticleImage)
+            binding.root.setOnClickListener{
+                onItemClickListener?.let{
+                    Log.e("TAG", "bind: "+article.url )
+                    it(article)
+                }
+            }
         }
+    }
+
+    private var onItemClickListener:((Article)->Unit)? = null
+    fun setOnItemClickListener(listener : (Article)-> Unit){
+        onItemClickListener = listener
     }
 
    }
