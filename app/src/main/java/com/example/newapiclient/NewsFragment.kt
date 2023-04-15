@@ -62,11 +62,12 @@ class NewsFragment : Fragment() {
                 is Resource.Success -> {
                     hideProgressBar()
                     response.data?.let {
+
                         newsAdapter.differ.submitList(it.articles.toList())
-                        if (it.totalResults%20 == 0){
-                            val pages = it.totalResults/20
+                        if(it.totalResults%20 == 0) {
+                            pages = it.totalResults / 20
                         }else{
-                            pages = it.totalResults/20
+                            pages = it.totalResults/20+1
                         }
                         isLastPage = page == pages
 
@@ -123,13 +124,11 @@ class NewsFragment : Fragment() {
             val topPosition = layoutManager.findFirstVisibleItemPosition()
 
             val hasReachedToEnd = topPosition+visibleItems >= sizeOfTheCurrentList
-            val shouldPaginate = !isLoading && isLastPage && hasReachedToEnd && isScrolling
+            val shouldPaginate = !isLoading && !isLastPage && hasReachedToEnd && isScrolling
             if(shouldPaginate){
                 page++
-                Log.e("TAG", "onScrolled:2 ", )
                 viewModel.getNewsHeadlines(country,page)
                 isScrolling = false
-
             }
 
 
