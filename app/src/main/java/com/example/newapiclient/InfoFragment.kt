@@ -9,9 +9,12 @@ import android.view.ViewGroup
 import android.webkit.WebViewClient
 import androidx.navigation.fragment.navArgs
 import com.example.newapiclient.databinding.FragmentInfoBinding
+import com.example.newapiclient.presentation.viewmodel.NewsViewModel
+import com.google.android.material.snackbar.Snackbar
 
 class InfoFragment : Fragment() {
     lateinit var fragmentInfoBinding: FragmentInfoBinding
+    lateinit var  viewModel : NewsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,15 +27,18 @@ class InfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         fragmentInfoBinding = FragmentInfoBinding.bind(view)
         val args : InfoFragmentArgs by navArgs()
-        Log.e("TAG", "onViewCreated: $args")
 
-        val article_url = args.selectedArticle
+        val article = args.selectedArtical
+        viewModel = (activity as MainActivity).viewModel
         fragmentInfoBinding.wvInfo.apply {
             webViewClient = WebViewClient()
-            if (article_url != ""){
-                loadUrl(article_url)
-            }
+            article.url?.let { loadUrl(it) }
 
+        }
+
+        fragmentInfoBinding.fabSave.setOnClickListener {
+            viewModel.saveArticle(article)
+            Snackbar.make(view,"Saved This for offline",Snackbar.LENGTH_LONG).show()
         }
     }
 

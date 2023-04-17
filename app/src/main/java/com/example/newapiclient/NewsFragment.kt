@@ -7,15 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.LayoutManager
+import com.example.newapiclient.data.model.Source
 import com.example.newapiclient.data.util.Resource
 import com.example.newapiclient.databinding.FragmentNewsBinding
 import com.example.newapiclient.presentation.adapter.NewsAdapter
 import com.example.newapiclient.presentation.viewmodel.NewsViewModel
+import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class NewsFragment : Fragment() {
 
@@ -43,8 +49,18 @@ class NewsFragment : Fragment() {
         viewModel = (activity as MainActivity).viewModel
         newsAdapter = (activity as MainActivity).newsAdapter
         newsAdapter.setOnItemClickListener {
+
+            Log.e("TAG", "onViewCreated: "+it.author)
+            Log.e("TAG", "onViewCreated: "+it.title)
+            Log.e("TAG", "onViewCreated: "+it.content)
+            Log.e("TAG", "onViewCreated: "+it.url)
+            Log.e("TAG", "onViewCreated: "+it.description)
+            Log.e("TAG", "onViewCreated: "+ it.urlToImage )
+            Log.e("TAG", "onViewCreated: "+it.publishedAt)
+            Log.e("TAG", "onViewCreated: "+it.source)
+
             val bundle = Bundle().apply {
-                putString("selected_article",it.url)
+                putSerializable("selected_article",it)
             }
             findNavController().navigate(
                 R.id.action_newsFragment_to_infoFragment,bundle)
@@ -52,6 +68,7 @@ class NewsFragment : Fragment() {
         }
         initRecyclerView()
         viewNewsList()
+        setSearchView()
     }
 
     private fun viewNewsList() {
@@ -134,4 +151,71 @@ class NewsFragment : Fragment() {
 
         }
     }
+    private  fun setSearchView(){
+        fragmentNewsBinding.svNews.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                viewModel.searchNews(country,p0.toString(),page)
+                viewSearchedNews()
+                return false
+            }
+
+            override fun onQueryTextChange(p0: String?): Boolean {
+                MainScope().launch {
+                    delay(2000)
+                    viewModel.searchNews(country,p0.toString(),page)
+                    viewSearchedNews()
+                }
+
+                return false
+            }
+        })
+        fragmentNewsBinding.svNews.setOnCloseListener(object : SearchView.OnCloseListener{
+            override fun onClose(): Boolean {
+                initRecyclerView()
+                viewNewsList()
+                return false
+            }
+
+        })
+
+    }
+
+    fun viewSearchedNews(){
+
+       // viewModel.getNewsHeadlines(country,page)
+        viewModel.searchedNews.observe(viewLifecycleOwner) { response ->
+            when (response) {
+
+                is Resource.Success -> {
+                    hideProgressBar()
+                    response.data?.let {
+
+                        newsAdapter.differ.submitList(it.articles.toList())
+                        if(it.totalResults%20 == 0) {
+                            pages = it.totalResults / 20
+                        }else{
+                            pages = it.totalResults/20+1
+                        }
+                        isLastPage = page == pages
+
+
+                    }
+
+                }
+                is Resource.Error -> {
+                    hideProgressBar()
+                    response.data?.let {
+                        Toast.makeText(activity, "Some went wrong", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is Resource.Loading -> {
+                    showProgressBar()
+                }
+                else -> {}
+            }
+
+        }
+
+    }
+
 }

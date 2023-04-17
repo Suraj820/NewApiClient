@@ -29,7 +29,7 @@
         android:label="fragment_info"
         tools:layout="@layout/fragment_info" >
         <argument
-            android:name="selected_article"
-            app:argType="string" />
+            android:name="selected_artical"
+            app:argType="com.example.newapiclient.data.model.Article" />
     </fragment>
 </navigation>
