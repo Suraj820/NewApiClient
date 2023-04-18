@@ -7,11 +7,13 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.newapiclient.data.model.APIResponse
 import com.example.newapiclient.data.model.Article
 import com.example.newapiclient.data.util.Resource
 import com.example.newapiclient.domain.usecase.GetNewsHeadlinesUseCase
+import com.example.newapiclient.domain.usecase.GetSavedNewsUseCase
 import com.example.newapiclient.domain.usecase.GetSearchedNewsUseCase
 import com.example.newapiclient.domain.usecase.SaveNewsUseCase
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +23,8 @@ class NewsViewModel(
     private val app: Application,
     private  val getNewsHeadlinesUseCase : GetNewsHeadlinesUseCase,
     private val getSearchedNewsUseCase: GetSearchedNewsUseCase,
-   private val saveNewUseCase: SaveNewsUseCase
+    private val saveNewUseCase: SaveNewsUseCase,
+    private val getSavedNewsUseCase: GetSavedNewsUseCase
 ) : AndroidViewModel(app){
     val newsHeadlines: MutableLiveData<Resource<APIResponse>> = MutableLiveData()
     val searchedNews : MutableLiveData<Resource<APIResponse>> = MutableLiveData()
@@ -46,25 +49,13 @@ class NewsViewModel(
     fun isInternetAvailable(context: Context): Boolean {
         var result = false
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            cm?.run {
-                cm.getNetworkCapabilities(cm.activeNetwork)?.run {
-                    result = when {
-                        hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                        hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                        hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                        else -> false
-                    }
-                }
-            }
-        } else {
-            cm?.run {
-                cm.activeNetworkInfo?.run {
-                    if (type == ConnectivityManager.TYPE_WIFI) {
-                        result = true
-                    } else if (type == ConnectivityManager.TYPE_MOBILE) {
-                        result = true
-                    }
+        cm?.run {
+            cm.getNetworkCapabilities(cm.activeNetwork)?.run {
+                result = when {
+                    hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                    hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                    hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                    else -> false
                 }
             }
         }
@@ -90,6 +81,12 @@ class NewsViewModel(
 
     fun saveArticle(article: Article) = viewModelScope.launch {
         saveNewUseCase.execute(article)
+    }
+
+    fun getSavedNews()= liveData {
+        getSavedNewsUseCase.execute().collect{
+            emit(it)
+        }
     }
 
 }

@@ -12,13 +12,10 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
-import com.example.newapiclient.data.model.Source
 import com.example.newapiclient.data.util.Resource
 import com.example.newapiclient.databinding.FragmentNewsBinding
 import com.example.newapiclient.presentation.adapter.NewsAdapter
 import com.example.newapiclient.presentation.viewmodel.NewsViewModel
-import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -60,7 +57,7 @@ class NewsFragment : Fragment() {
             Log.e("TAG", "onViewCreated: "+it.source)
 
             val bundle = Bundle().apply {
-                putSerializable("selected_article",it)
+                putSerializable("selectedArtical",it)
             }
             findNavController().navigate(
                 R.id.action_newsFragment_to_infoFragment,bundle)
