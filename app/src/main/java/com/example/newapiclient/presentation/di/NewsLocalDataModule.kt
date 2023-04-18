@@ -1,9 +1,9 @@
 package com.example.newapiclient.presentation.di
 
+import com.example.newapiclient.data.db.ArticleDAO
 import com.example.newapiclient.data.repository.NewsRepositoryImpl
 import com.example.newapiclient.data.repository.dataSource.NewsLocalDataSource
-import com.example.newapiclient.data.repository.dataSource.NewsRemoteDataSource
-import com.example.newapiclient.domain.repository.NewsRepository
+import com.example.newapiclient.data.repository.dataSourceImpl.NewsLocalDataSourceImp
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,14 +12,10 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class RepositoryModule {
-
+class NewsLocalDataModule {
     @Provides
     @Singleton
-    fun  provideNewsRepository(
-        newsRemoteDataSource: NewsRemoteDataSource,
-        newsLocalDataSource: NewsLocalDataSource
-    ):NewsRepository{
-        return NewsRepositoryImpl(newsRemoteDataSource,newsLocalDataSource)
+    fun provideLocalDataSource(articleDAO: ArticleDAO):NewsLocalDataSource{
+        return NewsLocalDataSourceImp(articleDAO)
     }
 }
