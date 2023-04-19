@@ -6,10 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.newapiclient.databinding.FragmentSavedBinding
 import com.example.newapiclient.presentation.adapter.NewsAdapter
 import com.example.newapiclient.presentation.viewmodel.NewsViewModel
+import com.google.android.material.snackbar.Snackbar
 
 class SavedFragment : Fragment() {
 
@@ -45,7 +48,36 @@ class SavedFragment : Fragment() {
             newsAdapter.differ.submitList(it)
         }
 
+        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ){
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder,
+            ): Boolean {
+               return true
+            }
 
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+               val pos  = viewHolder.adapterPosition
+                val article = newsAdapter.differ.currentList[pos]
+                viewModel.deleteArticle(article)
+                Snackbar.make(view,"Deleted Successfully ",Snackbar.LENGTH_LONG)
+                    .apply {
+                        setAction("Undo"){
+                            viewModel.saveArticle(article)
+                        }
+                        show()
+                    }
+            }
+
+
+        }
+        ItemTouchHelper(itemTouchHelperCallback).apply {
+            attachToRecyclerView(fragmentSavedBinding.rvSave)
+        }
     }
     private fun initRecyclerView() {
         // newsAdapter = NewsAdapter()
