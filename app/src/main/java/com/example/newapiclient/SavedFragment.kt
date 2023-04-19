@@ -37,7 +37,7 @@ class SavedFragment : Fragment() {
                 putSerializable("selectedArtical",it)
             }
             findNavController().navigate(
-                R.id.action_newsFragment_to_infoFragment,bundle)
+                R.id.action_savedFragment_to_infoFragment,bundle)
 
         }
         initRecyclerView()
